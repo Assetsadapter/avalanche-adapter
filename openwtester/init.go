@@ -1,7 +1,7 @@
 package openwtester
 
 import (
-	"github.com/blocktree/bitcoin-adapter/avalanche"
+	"github.com/Assetsadapter/avalanche-adapter/avalanche"
 	"github.com/blocktree/openwallet/v2/log"
 	"github.com/blocktree/openwallet/v2/openw"
 )

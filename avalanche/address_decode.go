@@ -18,6 +18,7 @@ package avalanche
 import (
 	"fmt"
 
+	"github.com/blocktree/go-owcdrivers/addressEncoder/bech32"
 	"github.com/blocktree/openwallet/v2/openwallet"
 
 	"github.com/blocktree/go-owcdrivers/addressEncoder"
@@ -31,21 +32,30 @@ func init() {
 var(
 	AVAX_mainnetAddressP2PKH = addressEncoder.AddressType{
 		"bech32",
-		addressEncoder.BTCAlphabet,
+		addressEncoder.BTCBech32Alphabet,
+		"sha3_256_ripemd160",
 		"sha3_256",
-		"ripemd160",
 		20,
-		[]byte("X-avax"),
+		[]byte("avax"),
 		nil}
 
 	AVAX_testnetAddressP2PKH = addressEncoder.AddressType{
 		"bech32",
-		addressEncoder.BTCAlphabet,
+		addressEncoder.BTCBech32Alphabet,
+		"sha3_256_ripemd160",
 		"sha3_256",
-		"ripemd160",
 		20,
-		[]byte("X-avax"),
+		[]byte("local"),
 		nil}
+
+	//AVAX_testnetAddressP2PKH = addressEncoder.AddressType{
+	//	"bech32",
+	//	addressEncoder.BTCBech32Alphabet,
+	//	"sha3_256_ripemd160",
+	//	"sha3_256",
+	//	20,
+	//	[]byte("fuji"),
+	//	nil}
 )
 
 type AddressDecoder interface {
@@ -89,7 +99,7 @@ func (decoder *addressDecoder) PublicKeyToAddress(pub []byte, isTestnet bool) (s
 	hash := owcrypt.Hash(pub, 0, owcrypt.HASH_ALG_SHA3_256)
 	rip := owcrypt.Hash(hash, 20, owcrypt.HASH_ALG_RIPEMD160)
 
-	address := addressEncoder.AddressEncode(rip, cfg)
+	address := bech32.Encode(string(cfg.Prefix), cfg.Alphabet, rip, nil)
 
 	//if decoder.wm.Config.RPCServerType == RPCServerCore {
 	//	//如果使用core钱包作为全节点，需要导入地址到core，这样才能查询地址余额和utxo
@@ -99,7 +109,11 @@ func (decoder *addressDecoder) PublicKeyToAddress(pub []byte, isTestnet bool) (s
 	//	}
 	//}
 
-	return address, nil
+	// 加上chainId，只实现X链的
+	// X chain = X
+	// P chain = P
+	// C chain = C
+	return "X-"+address, nil
 
 }
 
